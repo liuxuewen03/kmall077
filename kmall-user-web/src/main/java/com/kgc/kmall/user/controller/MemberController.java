@@ -23,8 +23,14 @@ public class MemberController {
 
     @RequestMapping("/test")
     @ResponseBody
-    public List<Member> test(){
-        return memberService.selectAllMember();
+    public String test(){
+        List<Member> members = memberService.selectAllMember();
+        if (members.size()>0){
+            return members.toString();
+        }else {
+            return "没有查到";
+        }
+
     }
 
 
