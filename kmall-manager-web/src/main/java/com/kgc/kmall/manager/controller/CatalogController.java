@@ -27,11 +27,14 @@ public class CatalogController {
     @RequestMapping("/getCatalog1")
     public List<PmsBaseCatalog1> getCatalog1(){
         return catalogService.getPmsBaseCataLog1();
+
     }
+
     @RequestMapping("/getCatalog2")
     public List<PmsBaseCatalog2> getCatalog2(Integer catalog1Id){
         return catalogService.getPmsBaseCatalog2(catalog1Id);
     }
+
     @RequestMapping("/getCatalog3")
     public List<PmsBaseCatalog3> getCatalog3(Integer catalog2Id){
         return catalogService.getPmsBaseCatalog3(catalog2Id);
