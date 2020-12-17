@@ -1,5 +1,6 @@
 package com.kgc.kmall.service;
 
+import com.kgc.kmall.bean.PmsBaseSaleAttr;
 import com.kgc.kmall.bean.PmsProductInfo;
 import com.kgc.kmall.bean.PmsProductSaleAttr;
 
@@ -13,7 +14,7 @@ public interface SpuService {
 
     List<PmsProductInfo> spuList(Long catalog3Id);
 
-    List<PmsProductSaleAttr> baseSaleAttrList();
+    List<PmsBaseSaleAttr> baseSaleAttrList();
 
     int saveSpuInfo(PmsProductInfo pmsProductInfo);
 

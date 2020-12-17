@@ -1,5 +1,6 @@
 package com.kgc.kmall.manager.controller;
 
+import com.kgc.kmall.bean.PmsBaseSaleAttr;
 import com.kgc.kmall.bean.PmsProductInfo;
 import com.kgc.kmall.bean.PmsProductSaleAttr;
 import com.kgc.kmall.service.SpuService;
@@ -35,8 +36,8 @@ public class SpuController {
     }
 
     @RequestMapping("baseSaleAttrList")
-    public List<PmsProductSaleAttr> baseSaleAttrList(){
-        List<PmsProductSaleAttr> pmsProductSaleAttrs = spuService.baseSaleAttrList();
+    public List<PmsBaseSaleAttr> baseSaleAttrList(){
+        List<PmsBaseSaleAttr> pmsProductSaleAttrs = spuService.baseSaleAttrList();
         return pmsProductSaleAttrs;
     }
 

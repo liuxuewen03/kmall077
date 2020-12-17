@@ -1,8 +1,10 @@
 package com.kgc.kmall.manager.service;
 
+import com.kgc.kmall.bean.PmsBaseSaleAttr;
 import com.kgc.kmall.bean.PmsProductInfo;
 import com.kgc.kmall.bean.PmsProductInfoExample;
 import com.kgc.kmall.bean.PmsProductSaleAttr;
+import com.kgc.kmall.manager.mapper.PmsBaseSaleAttrMapper;
 import com.kgc.kmall.manager.mapper.PmsProductInfoMapper;
 import com.kgc.kmall.manager.mapper.PmsProductSaleAttrMapper;
 import com.kgc.kmall.service.SpuService;
@@ -23,7 +25,7 @@ public class SpuServiceImpl implements SpuService {
     @Resource
     PmsProductInfoMapper pmsProductInfoMapper;
     @Resource
-    PmsProductSaleAttrMapper pmsProductSaleAttrMapper;
+    PmsBaseSaleAttrMapper pmsBaseSaleAttrMapper;
 
 
     @Override
@@ -36,8 +38,8 @@ public class SpuServiceImpl implements SpuService {
     }
 
     @Override
-    public List<PmsProductSaleAttr> baseSaleAttrList() {
-        List<PmsProductSaleAttr> pmsProductSaleAttrs = pmsProductSaleAttrMapper.selectByExample(null);
+    public List<PmsBaseSaleAttr> baseSaleAttrList() {
+        List<PmsBaseSaleAttr> pmsProductSaleAttrs = pmsBaseSaleAttrMapper.selectByExample(null);
         return pmsProductSaleAttrs;
     }
 
