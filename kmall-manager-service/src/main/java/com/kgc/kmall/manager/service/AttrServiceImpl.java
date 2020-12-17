@@ -37,22 +37,30 @@ public class AttrServiceImpl implements AttrService {
 
     @Override
     public int add(PmsBaseAttrInfo attrInfo) {
-        int i = 0;
-        //如果attrInfo.getid为空就走添加方法，否则就去修改，修改属性名
-        if (attrInfo.getId() == null) {
-            i = pmsBaseAttrInfoMapper.insertSelective(attrInfo);
-        } else {
-            i = pmsBaseAttrInfoMapper.updateByPrimaryKeySelective(attrInfo);
+
+
+        try {
+            if (attrInfo.getId() == null) {
+                //添加
+                pmsBaseAttrInfoMapper.insertSelective(attrInfo);
+            } else {
+                //修改
+                pmsBaseAttrInfoMapper.updateByPrimaryKeySelective(attrInfo);
+                //删除
+                PmsBaseAttrValueExample pmsBaseAttrValueExample = new PmsBaseAttrValueExample();
+                PmsBaseAttrValueExample.Criteria criteria = pmsBaseAttrValueExample.createCriteria();
+                criteria.andAttrIdEqualTo(attrInfo.getId());
+                pmsBaseAttrValueMapper.deleteByExample(pmsBaseAttrValueExample);
+            }
+            //添加属性值
+            if (attrInfo.getAttrValueList().size() > 0) {
+                pmsBaseAttrValueMapper.insertBatch(attrInfo.getId(), attrInfo.getAttrValueList());
+            }
+            return 1;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return -1;
         }
-        //不管有没有都走一次删除
-        PmsBaseAttrValueExample pmsBaseAttrValueExample = new PmsBaseAttrValueExample();
-        PmsBaseAttrValueExample.Criteria criteria = pmsBaseAttrValueExample.createCriteria();
-        criteria.andAttrIdEqualTo(attrInfo.getId());
-        i = pmsBaseAttrValueMapper.deleteByExample(pmsBaseAttrValueExample);
-        if (attrInfo.getAttrValueList().size() > 0) {
-            i = pmsBaseAttrValueMapper.insertBatch(attrInfo.getId(), attrInfo.getAttrValueList());
-        }
-        return i;
     }
 
     @Override
