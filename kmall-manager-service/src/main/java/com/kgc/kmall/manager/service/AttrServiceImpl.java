@@ -1,11 +1,9 @@
 package com.kgc.kmall.manager.service;
 
-import com.kgc.kmall.bean.PmsBaseAttrInfo;
-import com.kgc.kmall.bean.PmsBaseAttrInfoExample;
-import com.kgc.kmall.bean.PmsBaseAttrValue;
-import com.kgc.kmall.bean.PmsBaseAttrValueExample;
+import com.kgc.kmall.bean.*;
 import com.kgc.kmall.manager.mapper.PmsBaseAttrInfoMapper;
 import com.kgc.kmall.manager.mapper.PmsBaseAttrValueMapper;
+import com.kgc.kmall.manager.mapper.PmsProductSaleAttrValueMapper;
 import com.kgc.kmall.service.AttrService;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.stereotype.Component;
@@ -32,7 +30,19 @@ public class AttrServiceImpl implements AttrService {
         PmsBaseAttrInfoExample pmsBaseAttrInfoExample = new PmsBaseAttrInfoExample();
         PmsBaseAttrInfoExample.Criteria criteria = pmsBaseAttrInfoExample.createCriteria();
         criteria.andCatalog3IdEqualTo((long) catalog3Id);
-        return pmsBaseAttrInfoMapper.selectByExample(pmsBaseAttrInfoExample);
+        List<PmsBaseAttrInfo> pmsBaseAttrInfos = pmsBaseAttrInfoMapper.selectByExample(pmsBaseAttrInfoExample);
+        //循环查询属性值
+        for (PmsBaseAttrInfo pmsBaseAttrInfo : pmsBaseAttrInfos) {
+            PmsBaseAttrValueExample pmsBaseAttrValueExample =new PmsBaseAttrValueExample();
+
+
+
+
+            pmsBaseAttrValueExample.createCriteria().andAttrIdEqualTo(pmsBaseAttrInfo.getId());
+            List<PmsBaseAttrValue> pmsBaseAttrValues = pmsBaseAttrValueMapper.selectByExample(pmsBaseAttrValueExample);
+            pmsBaseAttrInfo.setAttrValueList(pmsBaseAttrValues);
+        }
+        return pmsBaseAttrInfos;
     }
 
     @Override

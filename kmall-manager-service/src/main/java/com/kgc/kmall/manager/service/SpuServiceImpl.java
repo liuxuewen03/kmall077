@@ -1,12 +1,7 @@
 package com.kgc.kmall.manager.service;
 
-import com.kgc.kmall.bean.PmsBaseSaleAttr;
-import com.kgc.kmall.bean.PmsProductInfo;
-import com.kgc.kmall.bean.PmsProductInfoExample;
-import com.kgc.kmall.bean.PmsProductSaleAttr;
-import com.kgc.kmall.manager.mapper.PmsBaseSaleAttrMapper;
-import com.kgc.kmall.manager.mapper.PmsProductInfoMapper;
-import com.kgc.kmall.manager.mapper.PmsProductSaleAttrMapper;
+import com.kgc.kmall.bean.*;
+import com.kgc.kmall.manager.mapper.*;
 import com.kgc.kmall.service.SpuService;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.stereotype.Component;
@@ -26,7 +21,12 @@ public class SpuServiceImpl implements SpuService {
     PmsProductInfoMapper pmsProductInfoMapper;
     @Resource
     PmsBaseSaleAttrMapper pmsBaseSaleAttrMapper;
-
+    @Resource
+    PmsProductImageMapper pmsProductImageMapper;
+    @Resource
+    PmsProductSaleAttrMapper pmsProductSaleAttrMapper;
+    @Resource
+    PmsProductSaleAttrValueMapper pmsProductSaleAttrValueMapper;
 
     @Override
     public List<PmsProductInfo> spuList(Long catalog3Id) {
@@ -45,8 +45,57 @@ public class SpuServiceImpl implements SpuService {
 
     @Override
     public int saveSpuInfo(PmsProductInfo pmsProductInfo) {
-
-
+        //添加spu
+        pmsProductInfoMapper.insert(pmsProductInfo);
+        //添加图片
+        List<PmsProductImage> pmsProductImages = pmsProductInfo.getSpuImageList();
+        if (pmsProductImages != null && pmsProductImages.size() > 0) {
+            for (PmsProductImage pmsProductImage : pmsProductImages) {
+                pmsProductImage.setProductId(pmsProductInfo.getId());
+                pmsProductImageMapper.insert(pmsProductImage);
+            }
+        }
+        //添加销售属性
+        List<PmsProductSaleAttr> pmsProductSaleAttrs = pmsProductInfo.getSpuSaleAttrList();
+        if (pmsProductSaleAttrs != null && pmsProductSaleAttrs.size() != 0) {
+            for (PmsProductSaleAttr pmsProductSaleAttr : pmsProductSaleAttrs) {
+                pmsProductSaleAttr.setProductId(pmsProductInfo.getId());
+                List<PmsProductSaleAttrValue> pmsProductSaleAttrValues = pmsProductSaleAttr.getSpuSaleAttrValueList();
+                if (pmsProductSaleAttrValues != null && pmsProductSaleAttrValues.size() != 0) {
+                    for (PmsProductSaleAttrValue pmsProductSaleAttrValue : pmsProductSaleAttrValues) {
+                        pmsProductSaleAttrValue.setProductId(pmsProductInfo.getId());
+                        pmsProductSaleAttrValueMapper.insert(pmsProductSaleAttrValue);
+                    }
+                }
+                pmsProductSaleAttrMapper.insert(pmsProductSaleAttr);
+            }
+        }
         return -1;
+    }
+
+    @Override
+    public List<PmsProductSaleAttr> spuSaleAttrList(Long spuId) {
+        //查询销售属性
+        PmsProductSaleAttrExample pmsProductSaleAttrExample = new PmsProductSaleAttrExample();
+        pmsProductSaleAttrExample.createCriteria().andProductIdEqualTo(spuId);
+        List<PmsProductSaleAttr> pmsProductSaleAttrs = pmsProductSaleAttrMapper.selectByExample(pmsProductSaleAttrExample);
+        for (PmsProductSaleAttr pmsProductSaleAttr : pmsProductSaleAttrs) {
+            //查询销售属性值
+            PmsProductSaleAttrValueExample pmsProductSaleAttrValueExample = new PmsProductSaleAttrValueExample();
+            PmsProductSaleAttrValueExample.Criteria criteria = pmsProductSaleAttrValueExample.createCriteria();
+            criteria.andProductIdEqualTo(spuId);
+            criteria.andSaleAttrIdEqualTo(pmsProductSaleAttr.getSaleAttrId());
+            List<PmsProductSaleAttrValue> pmsProductSaleAttrValues = pmsProductSaleAttrValueMapper.selectByExample(pmsProductSaleAttrValueExample);
+            pmsProductSaleAttr.setSpuSaleAttrValueList(pmsProductSaleAttrValues);
+        }
+        return pmsProductSaleAttrs;
+    }
+
+    @Override
+    public List<PmsProductImage> spuImageList(Long spuId) {
+        PmsProductImageExample pmsProductImageExample=new PmsProductImageExample();
+        pmsProductImageExample.createCriteria().andProductIdEqualTo(spuId);
+        List<PmsProductImage> pmsProductImages = pmsProductImageMapper.selectByExample(pmsProductImageExample);
+        return pmsProductImages;
     }
 }
