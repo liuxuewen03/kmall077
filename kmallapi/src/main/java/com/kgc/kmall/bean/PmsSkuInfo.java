@@ -1,16 +1,26 @@
 package com.kgc.kmall.bean;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.io.Serializable;
 import java.util.List;
 
+@ApiModel("sku")
 public class PmsSkuInfo implements Serializable{
+
+    @ApiModelProperty("skuid")
     private Long id;
 
+    @ApiModelProperty("spuid")
     private Long spuId;
 
+    @ApiModelProperty("价钱")
     private Double price;
 
+    @ApiModelProperty("sku名称")
     private String skuName;
+
 
     private String skuDesc;
 
@@ -20,9 +30,13 @@ public class PmsSkuInfo implements Serializable{
 
     private Long catalog3Id;
 
+    @ApiModelProperty(" sku默认图片")
     private String skuDefaultImg;
+    @ApiModelProperty("sku图片集合")
     List<PmsSkuImage> skuImageList;
+    @ApiModelProperty("spu销售属性关系集合")
     List<PmsSkuAttrValue> skuAttrValueList;
+    @ApiModelProperty("spu销售属性和销售属性关系值集合")
     List<PmsSkuSaleAttrValue> skuSaleAttrValueList;
 
     public List<PmsSkuImage> getSkuImageList() {

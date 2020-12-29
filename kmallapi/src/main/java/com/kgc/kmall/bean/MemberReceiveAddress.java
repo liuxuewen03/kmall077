@@ -1,5 +1,7 @@
 package com.kgc.kmall.bean;
 
+import io.swagger.annotations.ApiModel;
+
 import java.io.Serializable;
 
 public class MemberReceiveAddress  implements Serializable{

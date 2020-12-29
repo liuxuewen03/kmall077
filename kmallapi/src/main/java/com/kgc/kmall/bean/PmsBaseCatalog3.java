@@ -1,12 +1,20 @@
 package com.kgc.kmall.bean;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.io.Serializable;
 
+@ApiModel("三级分类")
 public class PmsBaseCatalog3 implements Serializable{
+
+    @ApiModelProperty("三级分类id")
     private Long id;
 
+    @ApiModelProperty("三级分类名称")
     private String name;
 
+    @ApiModelProperty("二级分类id")
     private Long catalog2Id;
 
     public Long getId() {

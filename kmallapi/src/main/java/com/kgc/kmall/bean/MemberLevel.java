@@ -1,33 +1,52 @@
 package com.kgc.kmall.bean;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+@ApiModel("用户等级")
 public class MemberLevel implements Serializable{
+
+    @ApiModelProperty("等级id")
     private Long id;
 
+    @ApiModelProperty("等级名称")
     private String name;
 
+    @ApiModelProperty()
     private Integer growthPoint;
 
+    @ApiModelProperty()
     private Integer defaultStatus;
 
+    @ApiModelProperty()
     private BigDecimal freeFreightPoint;
 
+    @ApiModelProperty()
     private Integer commentGrowthPoint;
 
+    @ApiModelProperty()
     private Integer priviledgeFreeFreight;
 
+    @ApiModelProperty()
     private Integer priviledgeSignIn;
 
+    @ApiModelProperty()
     private Integer priviledgeComment;
 
+    @ApiModelProperty()
     private Integer priviledgePromotion;
 
+    @ApiModelProperty()
     private Integer priviledgeMemberPrice;
 
+    @ApiModelProperty()
     private Integer priviledgeBirthday;
 
+    @ApiModelProperty()
     private String note;
 
     public Long getId() {

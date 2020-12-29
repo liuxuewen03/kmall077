@@ -1,18 +1,28 @@
 package com.kgc.kmall.bean;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.io.Serializable;
 
+@ApiModel("spu销售属性和销售属性关系值")
 public class PmsSkuSaleAttrValue implements Serializable{
+    @ApiModelProperty("id")
     private Long id;
 
+    @ApiModelProperty("skuid")
     private Long skuId;
 
+    @ApiModelProperty("平台属性id")
     private Long saleAttrId;
 
+    @ApiModelProperty("平台属性值id")
     private Long saleAttrValueId;
 
+    @ApiModelProperty("平台属性名称")
     private String saleAttrName;
 
+    @ApiModelProperty("平台属性值名称")
     private String saleAttrValueName;
 
     public Long getId() {
