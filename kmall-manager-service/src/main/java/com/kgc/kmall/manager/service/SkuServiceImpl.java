@@ -6,12 +6,13 @@ import com.kgc.kmall.manager.mapper.PmsSkuAttrValueMapper;
 import com.kgc.kmall.manager.mapper.PmsSkuImageMapper;
 import com.kgc.kmall.manager.mapper.PmsSkuInfoMapper;
 import com.kgc.kmall.manager.mapper.PmsSkuSaleAttrValueMapper;
-import com.kgc.kmall.manager.utils.RedisUtil;
 import com.kgc.kmall.service.SkuService;
+import com.kgc.kmall.utils.RedisUtil;
 import org.apache.dubbo.config.annotation.Service;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
-import springfox.documentation.spring.web.json.Json;
 
 import javax.annotation.Resource;
 import java.util.Collections;
@@ -37,6 +38,8 @@ public class SkuServiceImpl implements SkuService {
     PmsSkuSaleAttrValueMapper pmsSkuSaleAttrValueMapper;
     @Resource
     RedisUtil redisUtil;
+    @Resource
+    RedissonClient redissonClient;
 
     @Override
     public String saveSkuInfo(PmsSkuInfo skuInfo) {
@@ -58,57 +61,39 @@ public class SkuServiceImpl implements SkuService {
     }
 
     @Override
-    public PmsSkuInfo selectBySkuId(Long skuid) {
-        Jedis jedis = redisUtil.getJedis();
-        String key = "sku:" + skuid + ":info";
-        String skuJson = jedis.get(key);
+    public PmsSkuInfo selectBySkuId(Long skuId) {
         PmsSkuInfo pmsSkuInfo = null;
-        if (skuJson != null) {
-            //缓存有数据
-            pmsSkuInfo = JSON.parseObject(skuJson, PmsSkuInfo.class);
+        Jedis jedis = redisUtil.getJedis();
+        String skuKey = "sku:" + skuId + ":info";
+        String skuInfoJson = jedis.get(skuKey);
+
+        if (skuInfoJson != null) {
+            pmsSkuInfo = JSON.parseObject(skuInfoJson, PmsSkuInfo.class);
             jedis.close();
             return pmsSkuInfo;
         } else {
-            String skuLockKey = "sku:" + skuid + ":lock";
-            String skuLockValue= UUID.randomUUID().toString();
             //获取分布式锁
-            String skuKey = jedis.set(skuLockKey, skuLockValue, "NX", "PX", 60 * 1000);
-            //是否拿到分布式锁
-            if (skuKey.equals("OK")) {
-                //缓存没数据
-                pmsSkuInfo = pmsSkuInfoMapper.selectByPrimaryKey(skuid);
-                PmsSkuImageExample pmsSkuImageExample = new PmsSkuImageExample();
-                pmsSkuImageExample.createCriteria().andSkuIdEqualTo(pmsSkuInfo.getId());
-                List<PmsSkuImage> pmsSkuImages = pmsSkuImageMapper.selectByExample(pmsSkuImageExample);
-                pmsSkuInfo.setSkuImageList(pmsSkuImages);
+            //使用nx分布式锁，避免缓存击穿
+            RLock lock = redissonClient.getLock("lock");
+            lock.lock();//上锁
+            try {
+                pmsSkuInfo = pmsSkuInfoMapper.selectByPrimaryKey(skuId);
+                //保存到redis
                 if (pmsSkuInfo != null) {
-                    String json = JSON.toJSONString(pmsSkuInfo);
-                    //设置随机有效期，防止雪崩
+                    String skuInfoJsonStr = JSON.toJSONString(pmsSkuInfo);
+                    //有效期随机，防止缓存雪崩
                     Random random = new Random();
                     int i = random.nextInt(10);
-                    jedis.setex(key, i * 60 * 1000, skuJson);
+                    jedis.setex(skuKey, i * 60 * 1000, skuInfoJsonStr);
                 } else {
-                    jedis.setex(key, 5 * 60 * 1000, "empty");
+                    jedis.setex(skuKey, 5 * 60 * 1000, "empty");
                 }
-               /* //写完缓存后，删除分布式锁
-                String skuLockValue2 = jedis.get(skuLockKey);
-                if (skuLockValue2!=null&&skuLockValue2.equals(skuLockValue)){
-                    //刚做完判断，过期了
-                    jedis.del(skuLockKey);
-                }*/
-                String script ="if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-                jedis.eval(script, Collections.singletonList(skuLockKey),Collections.singletonList(skuLockValue));
+                jedis.close();
 
-            } else {
-                //未拿到锁，进行线程睡眠3s，递归调用
-                try {
-                    Thread.sleep(3000);
-                } catch (Exception e) {
-
-                }
-                return selectBySkuId(skuid);
+            } finally {
+                lock.unlock();
             }
-            jedis.close();
+
         }
         return pmsSkuInfo;
     }

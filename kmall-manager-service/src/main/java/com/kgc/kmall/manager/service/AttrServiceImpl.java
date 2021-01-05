@@ -3,7 +3,6 @@ package com.kgc.kmall.manager.service;
 import com.kgc.kmall.bean.*;
 import com.kgc.kmall.manager.mapper.PmsBaseAttrInfoMapper;
 import com.kgc.kmall.manager.mapper.PmsBaseAttrValueMapper;
-import com.kgc.kmall.manager.mapper.PmsProductSaleAttrValueMapper;
 import com.kgc.kmall.service.AttrService;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.stereotype.Component;
